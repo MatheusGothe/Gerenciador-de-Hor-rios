@@ -1,0 +1,59 @@
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+
+}
+
+model Professor {
+  id           String        @id @default(uuid())
+  nome         String
+  email        String        @unique
+  telefone     String?
+  disponibilidade DisponibilidadeProfessor[]
+  horarios     Horario[]
+}
+
+model Disciplina {
+  id          String     @id @default(uuid())
+  nome        String
+  codigo      String     @unique
+  horarios    Horario[]
+}
+
+model DisponibilidadeProfessor {
+  id            String   @id @default(uuid())
+  professorId   String
+  professor     Professor @relation(fields: [professorId], references: [id], onDelete: Restrict )
+  diaSemana     String
+  horaInicio    DateTime
+  horaFim       DateTime
+}
+
+model Sala {
+  id           String    @id @default(uuid())
+  nome         String    @unique
+  capacidade   Int
+  horarios     Horario[]
+}
+
+model Turma {
+  id           String    @id @default(uuid())
+  nome         String    @unique
+  horarios     Horario[]
+}
+
+model Horario {
+  id           String    @id @default(uuid())
+  diaSemana    String
+  horaInicio   DateTime
+  horaFim      DateTime
+  turmaId      String
+  disciplinaId String
+  salaId       String
+  professorId  String
+
+  turma        Turma       @relation(fields: [turmaId], references: [id], onDelete: Restrict )
+  disciplina   Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Restrict )
+  sala         Sala        @relation(fields: [salaId], references: [id], onDelete: Restrict )
+  professor    Professor   @relation(fields: [professorId], references: [id], onDelete: Restrict )
+}
