@@ -1,8 +1,9 @@
 // Importando dependências
-const express = require('express');
-const { PrismaClient } = require('@prisma/client');
-const dotenv = require('dotenv');
+import express from 'express';
 
+import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv'
+import router from './src/routes/Route.js'
 // Configurando o dotenv para carregar variáveis de ambiente
 dotenv.config();
 
@@ -13,19 +14,8 @@ const prisma = new PrismaClient();
 const app = express();
 
 // Usando middleware para aceitar JSON no corpo das requisições
-app.use(express.json());
+app.use(router);
 
-// Rota de exemplo para listar os professores
-app.get('/professores', async (req, res) => {
-    try {
-        // Buscando todos os professores no banco de dados
-        const professores = await prisma.professor.findMany();
-        res.json(professores);
-    } catch (error) {
-        // Caso ocorra algum erro
-        res.status(500).json({ error: 'Erro ao buscar professores' });
-    }
-});
 
 // Iniciando o servidor
 const startServer = async () => {
