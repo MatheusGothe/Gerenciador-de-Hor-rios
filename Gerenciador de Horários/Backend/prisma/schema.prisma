@@ -8,45 +8,45 @@ datasource db {
 
 }
 
-model Professor {
+model professor {
   id           String        @id @default(uuid())
   nome         String
   email        String        @unique
   telefone     String?
-  disponibilidade DisponibilidadeProfessor[]
-  horarios     Horario[]
+  disponibilidade disponibilidadeprofessor[]
+  horarios     horario[]
 }
 
-model Disciplina {
+model disciplina {
   id          String     @id @default(uuid())
   nome        String
   codigo      String     @unique
-  horarios    Horario[]
+  horarios    horario[]
 }
 
-model DisponibilidadeProfessor {
+model disponibilidadeprofessor {
   id            String   @id @default(uuid())
   professorId   String
-  professor     Professor @relation(fields: [professorId], references: [id], onDelete: Restrict )
+  professor     professor @relation(fields: [professorId], references: [id], onDelete: Restrict )
   diaSemana     String
   horaInicio    DateTime
   horaFim       DateTime
 }
 
-model Sala {
+model sala {
   id           String    @id @default(uuid())
   nome         String    @unique
   capacidade   Int
-  horarios     Horario[]
+  horarios     horario[]
 }
 
-model Turma {
+model turma {
   id           String    @id @default(uuid())
   nome         String    @unique
-  horarios     Horario[]
+  horarios     horario[]
 }
 
-model Horario {
+model horario {
   id           String    @id @default(uuid())
   diaSemana    String
   horaInicio   DateTime
@@ -59,10 +59,10 @@ model Horario {
   salaId       String
   professorId  String
 
-  turma        Turma       @relation(fields: [turmaId], references: [id], onDelete: Restrict)
-  disciplina   Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
-  sala         Sala        @relation(fields: [salaId], references: [id], onDelete: Restrict)
-  professor    Professor   @relation(fields: [professorId], references: [id], onDelete: Restrict)
+  turma        turma       @relation(fields: [turmaId], references: [id], onDelete: Restrict)
+  disciplina   disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
+  sala         sala        @relation(fields: [salaId], references: [id], onDelete: Restrict)
+  professor    professor   @relation(fields: [professorId], references: [id], onDelete: Restrict)
 
   @@unique([diaSemana, horaInicio, professorId]) // Evita conflito de professores
   @@unique([diaSemana, horaInicio, turmaId]) // Evita conflito de turma
@@ -81,7 +81,7 @@ model Projeto {
   id          String    @id @default(uuid())
   nome        String
   descricao   String?
-  horarios    Horario[]
+  horarios    horario[]
   usuarios    UsuarioProjeto[] // Relacionamento via UsuarioProjeto
 }
 

@@ -13,6 +13,8 @@ const prisma = new PrismaClient();
 // Criando o servidor Express
 const app = express();
 
+app.use(express.json());
+
 // Usando middleware para aceitar JSON no corpo das requisições
 app.use(router);
 
@@ -23,10 +25,10 @@ const startServer = async () => {
         // Conectando ao banco de dados
         await prisma.$connect();
         console.log('Conectado ao banco de dados com sucesso!');
-        
+        const port = 3000
         // Rodando o servidor na porta 3000
-        app.listen(3000, () => {
-            console.log('Servidor rodando na porta 3000');
+        app.listen(port, () => {
+            console.log('Servidor rodando na porta ' + port);
         });
     } catch (error) {
         console.error('Erro ao conectar ao banco de dados', error);
