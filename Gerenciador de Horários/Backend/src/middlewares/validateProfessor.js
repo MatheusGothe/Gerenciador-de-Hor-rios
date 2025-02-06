@@ -1,8 +1,9 @@
 import { PrismaClient } from "@prisma/client";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 const prisma = new PrismaClient();
 
 export const validateProfessor = async (req, res, next) => {
-  const { nome, email } = req.body;
+  const { nome, email,telefone } = req.body;
   // Verificar se nome e email estão presentes
 
   // validação se campos vieram na requisição
@@ -16,13 +17,14 @@ export const validateProfessor = async (req, res, next) => {
       }
     });
   }
+  
   // validação se campos são nulos
   if (!nome || !email) {
     return res.status(400).json({ error: "Nome e email são obrigatórios" });
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ error: "Formato de email inválido." });
 }
@@ -53,28 +55,24 @@ export const validateUpdateProfessor = async (req, res, next) => {
   const { id } = req.params; // Pegando o ID do professor a ser atualizado
   const { nome, email, telefone } = req.body;
 
-  // Verificar se nome, email e telefone foram enviados
-  if (nome === undefined || email === undefined || telefone === undefined) {
-    return res.status(400).json({ 
-      error: "Campos obrigatórios ausentes.",
-      missingFields: {
-        nome: nome === undefined ? "Nome não foi enviado." : undefined,
-        email: email === undefined ? "Email não foi enviado." : undefined,
-        telefone: telefone === undefined ? "Telefone não foi enviado." : undefined
-      }
-    });
-  }
+
   // Regex para validar email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ error: "Formato de email inválido." });
+  if(email){
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Formato de email inválido." });
+    }
   }
 
   // Regex para validar telefone (formatos aceitos: (99) 99999-9999, (99) 9999-9999, 99999-9999, 9999-9999)
-  const telefoneRegex = /^(?:\(\d{2}\)\s?)?(?:\d{4,5}-\d{4})$/;
+  if(telefone){
 
-  if (telefone && !telefoneRegex.test(telefone)) {
-    return res.status(400).json({ error: "Formato de telefone inválido." });
+    const telefoneRegex = /^(?:\(\d{2}\)\s?)?(?:\d{4,5}-\d{4})$/;
+    
+    if (telefone && !telefoneRegex.test(telefone)) {
+      return res.status(400).json({ error: "Formato de telefone inválido." });
+    }
   }
 
   try {
