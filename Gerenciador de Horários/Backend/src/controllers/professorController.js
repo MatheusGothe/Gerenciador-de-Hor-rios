@@ -6,22 +6,30 @@ export const getAllProfessores = async (req, res) => {
     const professores = await prisma.professor.findMany();
     res.json(professores);
   } catch (error) {
+    console.log(error.message)
     res.status(500).json({ error: "Erro ao buscar professores" });
   }
 };
-/*
+
+
 export const createProfessor = async (req, res) => {
   try {
     const { nome, email, telefone } = req.body;
+
+    if (!nome || !email) {
+      return res.status(400).json({ error: "Nome e email são obrigatórios" });
+    }
+
     const novoProfessor = await prisma.professor.create({
       data: { nome, email, telefone },
     });
     res.status(201).json(novoProfessor);
   } catch (error) {
+    console.log(error.message)
     res.status(500).json({ error: "Erro ao criar professor" });
   }
 };
-
+/*
 export const getProfessorById = async (req, res) => {
   try {
     const { id } = req.params;
