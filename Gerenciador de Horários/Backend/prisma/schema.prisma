@@ -3,94 +3,100 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
-
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model professor {
-  id           String        @id @default(uuid())
-  nome         String
-  email        String        @unique
-  telefone     String?
+  id              String                     @id @default(uuid())
+  nome            String
+  email           String                     @unique
+  telefone        String?
   disponibilidade disponibilidadeprofessor[]
-  horarios     horario[]
+  horarios        horario[]
 }
 
 model disciplina {
-  id          String     @id @default(uuid())
-  nome        String
-  codigo      String     @unique
-  horarios    horario[]
+  id       String    @id @default(uuid())
+  nome     String
+  codigo   String    @unique
+  duracao  Int
+  
+  horarios horario[]
 }
 
 model disponibilidadeprofessor {
-  id            String   @id @default(uuid())
-  professorId   String
-  professor     professor @relation(fields: [professorId], references: [id], onDelete: Restrict )
-  diaSemana     String
-  horaInicio    DateTime
-  horaFim       DateTime
+  id          String    @id @default(uuid())
+  professorId String
+  professor   professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
+  diaSemana   String
+  horaInicio  DateTime
+  horaFim     DateTime
 }
 
 model sala {
-  id           String    @id @default(uuid())
-  nome         String    @unique
-  capacidade   Int
-  horarios     horario[]
+  id         String    @id @default(uuid())
+  nome       String    @unique
+  capacidade Int
+  horarios   horario[]
 }
 
 model turma {
-  id           String    @id @default(uuid())
-  nome         String    @unique
-  horarios     horario[]
+  id       String    @id @default(uuid())
+  nome     String    @unique
+  horarios horario[]
 }
 
 model horario {
-  id           String    @id @default(uuid())
-  diaSemana    String
-  horaInicio   DateTime
-  horaFim      DateTime
-  projetoId    String     // Chave estrangeira para associar ao Projeto
-  projeto      Projeto    @relation(fields: [projetoId], references: [id], onDelete: Restrict)
+  id         String      @id @default(uuid())
+  diaSemana  String
+  horaInicio DateTime
+  horaFim    DateTime
+  tipo       TipoHorario
+  projetoId  String // Chave estrangeira para associar ao Projeto
+  projeto    Projeto     @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
   turmaId      String
   disciplinaId String
   salaId       String
   professorId  String
 
-  turma        turma       @relation(fields: [turmaId], references: [id], onDelete: Restrict)
-  disciplina   disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
-  sala         sala        @relation(fields: [salaId], references: [id], onDelete: Restrict)
-  professor    professor   @relation(fields: [professorId], references: [id], onDelete: Restrict)
+  turma      turma      @relation(fields: [turmaId], references: [id], onDelete: Restrict)
+  disciplina disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
+  sala       sala       @relation(fields: [salaId], references: [id], onDelete: Restrict)
+  professor  professor  @relation(fields: [professorId], references: [id], onDelete: Restrict)
 
   @@unique([diaSemana, horaInicio, professorId]) // Evita conflito de professores
   @@unique([diaSemana, horaInicio, turmaId]) // Evita conflito de turma
   @@unique([diaSemana, horaInicio, salaId]) // Evita conflito de sala
-
 }
 
 model Usuario {
-  id         String  @id @default(uuid())
-  nome       String
-  email      String  @unique
-  projetos   UsuarioProjeto[]
+  id       String           @id @default(uuid())
+  nome     String
+  email    String           @unique
+  projetos UsuarioProjeto[]
 }
 
 model Projeto {
-  id          String    @id @default(uuid())
-  nome        String
-  descricao   String?
-  horarios    horario[]
-  usuarios    UsuarioProjeto[] // Relacionamento via UsuarioProjeto
+  id        String           @id @default(uuid())
+  nome      String
+  descricao String?
+  horarios  horario[]
+  usuarios  UsuarioProjeto[] // Relacionamento via UsuarioProjeto
 }
 
 model UsuarioProjeto {
-  id         String  @id @default(uuid())
-  usuarioId  String
-  projetoId  String
-  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  projeto    Projeto  @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  id        String  @id @default(uuid())
+  usuarioId String
+  projetoId String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
 
   @@unique([usuarioId, projetoId]) // Evita duplicação de relações
+}
+
+enum TipoHorario {
+  AULA // Horário de aula
+  INTERVALO // Intervalo (lanche, almoço)
 }

@@ -55,33 +55,40 @@ export const validateUpdateProfessor = async (req, res, next) => {
   const { id } = req.params; // Pegando o ID do professor a ser atualizado
   const { nome, email, telefone } = req.body;
 
-
-  // Regex para validar email
-  if(email){
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Formato de email inválido." });
-    }
-  }
-
   // Regex para validar telefone (formatos aceitos: (99) 99999-9999, (99) 9999-9999, 99999-9999, 9999-9999)
   if(telefone){
-
-    const telefoneRegex = /^(?:\(\d{2}\)\s?)?(?:\d{4,5}-\d{4})$/;
-    
+    const telefoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
     if (telefone && !telefoneRegex.test(telefone)) {
       return res.status(400).json({ error: "Formato de telefone inválido." });
     }
   }
 
   try {
+    const telefoneExistente = await prisma.professor.findFirst({
+      where: {
+        telefone: telefone,
+        NOT: {
+          id: String(id), // Exclui o próprio professor da verificação
+        },
+      },
+    });
+
+    if(telefoneExistente){
+      return res.status(400).json({ error: "Telefone já cadastrado por outro professor." });
+    }
+
     // Verificar se já existe outro professor com esse email
+    if(email){
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Formato de email inválido." });
+      }
+    
     const emailExistente = await prisma.professor.findFirst({
       where: {
         email: email,
         NOT: {
-          id: Number(id), // Exclui o próprio professor da verificação
+          id: String(id), // Exclui o próprio professor da verificação
         },
       },
     });
@@ -89,7 +96,7 @@ export const validateUpdateProfessor = async (req, res, next) => {
     if (emailExistente) {
       return res.status(400).json({ error: "Email já cadastrado por outro professor." });
     }
-
+  }
     // Se tudo estiver correto, segue para a próxima função
     next();
   } catch (error) {
