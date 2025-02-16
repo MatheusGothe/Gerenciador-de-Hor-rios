@@ -72,32 +72,28 @@ model horario {
   @@unique([diaSemana, horaInicio, turmaId]) // Evita conflito de turma
   @@unique([diaSemana, horaInicio, salaId]) // Evita conflito de sala
 }
-
 model Usuario {
-  id       String           @id @default(uuid())
+  id       String    @id @default(uuid())
   nome     String
-  email    String           @unique
-  projetos UsuarioProjeto[]
+  email    String    @unique
+  password String
+  projetos Projeto[] // Um usuário pode estar em vários projetos
 }
 
 model Projeto {
   id        String           @id @default(uuid())
   nome      String
   descricao String?
-  horarios  horario[]
-  usuarios  UsuarioProjeto[] // Relacionamento via UsuarioProjeto
-  disciplinas disciplina[]   // Relacionamento com disciplinas
-}
-
-model UsuarioProjeto {
-  id        String  @id @default(uuid())
   usuarioId String
-  projetoId String
-  usuario   Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
-
-  @@unique([usuarioId, projetoId]) // Evita duplicação de relações
+  horarios  horario[]        // Relacionamentos com horários
+  disciplinas disciplina[]   // Relacionamento com disciplinas
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
 }
+
+
+
+
+
 
 enum TipoHorario {
   AULA // Horário de aula

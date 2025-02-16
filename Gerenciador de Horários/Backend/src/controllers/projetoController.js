@@ -11,8 +11,8 @@ export const getAllProjetos = async (req, res) => {
   }
 };
 
-/*
-export const createProfessor = async (req, res) => {
+
+export const createProjeto = async (req, res) => {
   try {
     const { nome, email, telefone } = req.body;
     
@@ -27,7 +27,7 @@ export const createProfessor = async (req, res) => {
     res.status(500).json({ error: "Erro ao criar professor" });
   }
 };
-
+/*
 export const getProfessorById = async (req, res) => {
   try {
     const { id } = req.params;

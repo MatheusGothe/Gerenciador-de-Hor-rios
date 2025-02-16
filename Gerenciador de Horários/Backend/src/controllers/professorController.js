@@ -15,7 +15,6 @@ export const getAllProfessores = async (req, res) => {
 export const createProfessor = async (req, res) => {
   try {
     const { nome, email, telefone } = req.body;
-    
 
     const novoProfessor = await prisma.professor.create({
       data: { nome, email, telefone },
