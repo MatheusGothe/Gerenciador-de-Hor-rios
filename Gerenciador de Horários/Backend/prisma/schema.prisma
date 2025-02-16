@@ -17,12 +17,14 @@ model professor {
 }
 
 model disciplina {
-  id       String    @id @default(uuid())
-  nome     String
-  codigo   String    @unique
-  duracao  Int
-  
-  horarios horario[]
+  id        String    @id @default(uuid())
+  nome      String
+  duracao   Int       // minutos
+  projetoId String    // Chave estrangeira para associar ao Projeto
+  projeto   Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  horarios  horario[]
+
+  @@unique([nome, projetoId]) // Garante que o nome seja único dentro do mesmo projeto
 }
 
 model disponibilidadeprofessor {
@@ -84,6 +86,7 @@ model Projeto {
   descricao String?
   horarios  horario[]
   usuarios  UsuarioProjeto[] // Relacionamento via UsuarioProjeto
+  disciplinas disciplina[]   // Relacionamento com disciplinas
 }
 
 model UsuarioProjeto {
