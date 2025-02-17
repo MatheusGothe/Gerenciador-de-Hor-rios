@@ -35,7 +35,6 @@ export const createUser = async (req, res) => {
 
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    console.log(hashedPassword)
     
     const novoUsuario = await prisma.usuario.create({
       data: { nome, email, password:hashedPassword },
@@ -52,7 +51,6 @@ export const createUser = async (req, res) => {
       });
   } catch (error) {
     console.log(error.message)
-    console.log(req.body)
     res.status(500).json({ error: "Erro ao criar discplina" });
   }
 };

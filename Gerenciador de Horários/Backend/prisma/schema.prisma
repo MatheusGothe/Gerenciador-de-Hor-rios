@@ -20,7 +20,7 @@ model disciplina {
   id        String    @id @default(uuid())
   nome      String
   duracao   Int       // minutos
-  projetoId String    // Chave estrangeira para associar ao Projeto
+  projetoId Int    // Chave estrangeira para associar ao Projeto
   projeto   Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
   horarios  horario[]
 
@@ -55,7 +55,7 @@ model horario {
   horaInicio DateTime
   horaFim    DateTime
   tipo       TipoHorario
-  projetoId  String // Chave estrangeira para associar ao Projeto
+  projetoId  Int // Chave estrangeira para associar ao Projeto
   projeto    Projeto     @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
   turmaId      String
@@ -81,7 +81,7 @@ model Usuario {
 }
 
 model Projeto {
-  id        String           @id @default(uuid())
+  id        Int         @id @default(autoincrement()) 
   nome      String
   descricao String?
   usuarioId String

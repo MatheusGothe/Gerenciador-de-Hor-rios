@@ -3,21 +3,16 @@ const prisma = new PrismaClient();
 
 
 export const validateProjeto = async (req, res, next) => {
-    const { nome, duracao } = req.body;
+    const { nome, descricao, usuarioId, } = req.body;
 
     try {
         
     if(!nome || nome.trim() === ""){
-        return res.status(400).json({ error: "Nome da disciplina deve ser informado" });
+        return res.status(400).json({ error: "Nome do projeto deve ser informado" });
     }
-
-    if(!duracao){
-        return res.status(400).json({ error: "Duração da disciplina deve ser informada" });
-    }
-
-    if(duracao < 0){
-        return res.status(400).json({ error: "Duração da disciplina deve ser maior de que 0" });
-    }
+    if (!usuarioId) {
+        return res.status(400).json({ error: "ID do usuário deve ser passado" });
+    } 
     next()
     }
     catch (error) {
@@ -27,23 +22,15 @@ export const validateProjeto = async (req, res, next) => {
   };
   
 
-  
-export const validateUpdateDisciplina = async (req, res, next) => {
-    const { nome, duracao } = req.body;
+  export const validateUpdateProjeto = async (req, res, next) => {
+    const { nome, descricao, } = req.body;
 
     try {
         
     if(!nome || nome.trim() === ""){
-        return res.status(400).json({ error: "Nome da disciplina deve ser informado" });
+        return res.status(400).json({ error: "Nome do projeto deve ser informado" });
     }
 
-    if(!duracao){
-        return res.status(400).json({ error: "Duração da disciplina deve ser informada" });
-    }
-
-    if(duracao < 0){
-        return res.status(400).json({ error: "Duração da disciplina deve ser maior de que 0" });
-    }
     next()
     }
     catch (error) {
@@ -51,4 +38,6 @@ export const validateUpdateDisciplina = async (req, res, next) => {
     }
 
   };
+  
+
   

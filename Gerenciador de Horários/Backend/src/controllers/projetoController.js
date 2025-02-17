@@ -14,67 +14,75 @@ export const getAllProjetos = async (req, res) => {
 
 export const createProjeto = async (req, res) => {
   try {
-    const { nome, email, telefone } = req.body;
+    const { nome, descricao, usuarioId } = req.body;
+
+    const usuario = await prisma.usuario.findUnique({
+      where : { id : usuarioId}
+    })
+
+    if(!usuario){
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
     
 
-    const novoProfessor = await prisma.professor.create({
-      data: { nome, email, telefone },
+    const novoProjeto = await prisma.projeto.create({
+      data: { nome, descricao, usuarioId },
     });
-    res.status(201).json(novoProfessor);
+    res.status(201).json(novoProjeto);
   } catch (error) {
     console.log(error.message)
-    console.log(req.body)
-    res.status(500).json({ error: "Erro ao criar professor" });
+    res.status(500).json({ error: "Erro ao criar projeto" });
   }
 };
-/*
-export const getProfessorById = async (req, res) => {
+
+export const getProjetoById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const professor = await prisma.professor.findUnique({ where: { id } });
-    if (!professor) return res.status(404).json({ error: "Professor não encontrado" });
-    res.json(professor);
+    const {id} = req.params
+    const projeto = await prisma.projeto.findUnique({ where: { id: Number(id) } });
+    if (!projeto) return res.status(404).json({ error: "Projeto não encontrado" });
+    res.json(projeto);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao buscar professor" });
+    console.log(error.message)
+    res.status(500).json({ error: "Erro ao buscar projeto" });
   }
 };
 
-export const updateProfessor = async (req, res) => {
+export const updateProjeto = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { nome, email, telefone } = req.body;
+    const {id} = req.params
+    const { nome, descricao } = req.body;
 
-    const professor = await prisma.professor.findUnique({ where: { id } });
-    if (!professor) return res.status(404).json({ error: "Professor não encontrado" });
+    const projeto = await prisma.projeto.findUnique({ where: { id: Number(id) } });
+    if (!projeto) return res.status(404).json({ error: "Projeto não encontrado" });
     
-    const professorAtualizado = await prisma.professor.update({
-      where: { id },
-      data: { nome, email, telefone },
+    const projetoAtualizado = await prisma.projeto.update({
+      where: { id: Number(id) },
+      data: { nome, descricao },
     });
-    res.json({professorAtualizado,message:"Professor Atualizado"});
+    res.json({projetoAtualizado,message:"Projeto Atualizado"});
   } catch (error) {
     res.status(500).json({ error: "Erro ao atualizar professor" });
   }
 };
 
-export const deleteProfessor = async (req, res) => {
+export const deleteProjeto = async (req, res) => {
   try {
     const { id } = req.params;
 
     // Verifica se o professor existe antes de deletar
-    const professor = await prisma.professor.findUnique({ where: { id: String(id) } });
+    const projeto = await prisma.projeto.findUnique({ where: { id: Number(id) } });
 
-    if (!professor) {
-      return res.status(404).json({ error: "Professor não encontrado" });
+    if (!projeto) {
+      return res.status(404).json({ error: "Projeto não encontrado" });
     }
 
     // Deleta o professor se ele existir
-    await prisma.professor.delete({ where: { id: String(id) } });
+    await prisma.projeto.delete({ where: { id: Number(id) } });
 
-    res.json({ message: "Professor deletado com sucesso" });
+    res.json({ message: "Projeto deletado com sucesso" });
   } catch (error) {
     console.log(error.message)
-    res.status(500).json({ error: "Erro ao deletar professor" });
+    res.status(500).json({ error: "Erro ao deletar projeto" });
   }
-};*/
+};
 
