@@ -12,6 +12,9 @@ model professor {
   nome            String
   email           String                     @unique
   telefone        String?
+  projetoId Int    // Chave estrangeira para associar ao Projeto
+  projeto   Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+
   disponibilidade disponibilidadeprofessor[]
   horarios        horario[]
 }
@@ -87,6 +90,7 @@ model Projeto {
   usuarioId String
   horarios  horario[]        // Relacionamentos com horários
   disciplinas disciplina[]   // Relacionamento com disciplinas
+  professores professor[]
   usuario   Usuario @relation(fields: [usuarioId], references: [id])
 }
 

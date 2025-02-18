@@ -3,17 +3,18 @@ import { parsePhoneNumberFromString } from "libphonenumber-js";
 const prisma = new PrismaClient();
 
 export const validateProfessor = async (req, res, next) => {
-  const { nome, email,telefone } = req.body;
+  const { nome, email,telefone,projetoId } = req.body;
   // Verificar se nome e email estão presentes
 
   // validação se campos vieram na requisição
-  if (nome === undefined || email === undefined || telefone === undefined) {
+  if (nome === undefined || email === undefined || telefone === undefined || projetoId === undefined) {
     return res.status(400).json({ 
       error: "Campos obrigatórios ausentes.",
       missingFields: {
         nome: nome === undefined ? "Nome não foi enviado." : undefined,
         email: email === undefined ? "Email não foi enviado." : undefined,
-        telefone: telefone === undefined ? "Telefone não foi enviado." : undefined
+        telefone: telefone === undefined ? "Telefone não foi enviado." : undefined,
+        projetoId: projetoId === undefined ? "ID do projeto não foi enviado." : undefined
       }
     });
   }
