@@ -14,25 +14,35 @@ export const getAllDisciplinas = async (req, res) => {
 
 export const createDiscplina = async (req, res) => {
   try {
-    const { nome, duracao } = req.body;
+    const { nome, duracao, projetoId } = req.body;
 
-    const discplinaExistente = await prisma.disciplina.findUnique({
+
+    const projetoExistente = await prisma.projeto.findFirst({
+      where: {
+        id: projetoId
+      }
+    })
+
+    if(!projetoExistente){
+      return res.status(400).json({ error: "Projeto não existente" });
+    }
+
+    const discplinaExistente = await prisma.disciplina.findFirst({
       where: {
         nome: nome,
+        projetoId: projetoId
       },
     });
-
     if (discplinaExistente) {
       return res.status(400).json({ error: "Nome da disciplina já cadastrado" });
     }
     
     const novaDisciplina = await prisma.disciplina.create({
-      data: { nome, duracao },
+      data: { nome, duracao,projetoId },
     });
     res.status(201).json(novaDisciplina);
   } catch (error) {
     console.log(error.message)
-    console.log(req.body)
     res.status(500).json({ error: "Erro ao criar discplina" });
   }
 };
@@ -54,38 +64,42 @@ export const updateDisciplina = async (req, res) => {
     const { nome, duracao } = req.body;
 
     const disciplina = await prisma.disciplina.findUnique({ where: { id } });
-    if (!disciplina) return res.status(404).json({ error: "Disciplina não encontrado" });
-
-   
+    if (!disciplina) return res.status(404).json({ error: "Disciplina não encontrada" });
+    
+    if(disciplina.nome === nome){
+      return res.status(401).json({ error: "Nome da disciplina deve ser diferente" });
+    }
+    if(disciplina.duracao === duracao){
+      return res.status(401).json({ error: "Duração da disciplina deve ser diferente" });
+    }
     const DisciplinaAtualizada = await prisma.disciplina.update({
       where: { id },
       data: { nome, duracao },
     });
-    res.json({DisciplinaAtualizada,message:"Disciplina Atualizado"});
+    res.json({DisciplinaAtualizada,message:"Disciplina Atualizada"});
   } catch (error) {
     res.status(500).json({ error: "Erro ao atualizar disciplina" });
   }
 };
-/*
-export const deleteProfessor = async (req, res) => {
+
+export const deleteDisciplina = async (req, res) => {
   try {
     const { id } = req.params;
 
     // Verifica se o professor existe antes de deletar
-    const professor = await prisma.professor.findUnique({ where: { id: String(id) } });
+    const disciplina = await prisma.disciplina.findUnique({ where: { id: String(id) } });
 
-    if (!professor) {
-      return res.status(404).json({ error: "Professor não encontrado" });
+    if (!disciplina) {
+      return res.status(404).json({ error: "Disciplina não encontrada" });
     }
 
     // Deleta o professor se ele existir
-    await prisma.professor.delete({ where: { id: String(id) } });
+    await prisma.disciplina.delete({ where: { id: String(id) } });
 
-    res.json({ message: "Professor deletado com sucesso" });
+    res.json({ message: "Disciplina deletada" });
   } catch (error) {
     console.log(error.message)
     res.status(500).json({ error: "Erro ao deletar professor" });
   }
 };
 
-*/

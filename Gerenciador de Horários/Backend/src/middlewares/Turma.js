@@ -2,8 +2,8 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 
-export const validadeDisciplina = async (req, res, next) => {
-    const { nome, duracao,projetoId } = req.body;
+export const validateTurma = async (req, res, next) => {
+    const { nome } = req.body;
 
     try {
         
@@ -32,7 +32,7 @@ export const validadeDisciplina = async (req, res, next) => {
   };
   
 
-  
+  /*
   export const validateUpdateDisciplina = async (req, res, next) => {
     const { nome, duracao } = req.body;
   
@@ -57,5 +57,5 @@ export const validadeDisciplina = async (req, res, next) => {
       console.error("Erro na validação da disciplina:", error);
       res.status(500).json({ error: "Erro interno ao validar a disciplina." });
     }
-  };
+  };*/
   
