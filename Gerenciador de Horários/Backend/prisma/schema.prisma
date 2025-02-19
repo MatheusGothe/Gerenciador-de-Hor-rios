@@ -104,14 +104,13 @@ model Projeto {
 model intervalo {
   id         String   @id @default(uuid())
   diaSemana  DiaSemana
-  horaInicio DateTime
+  horaInicio DateTime   
   horaFim    DateTime
   projetoId  Int
   projeto    Projeto  @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
   @@unique([diaSemana, horaInicio, projetoId], map: "unique_intervalo") // Evita intervalos duplicados
 }
-
 
 
 enum DiaSemana {
