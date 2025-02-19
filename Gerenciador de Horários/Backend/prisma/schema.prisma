@@ -34,7 +34,7 @@ model disponibilidadeprofessor {
   id          String    @id @default(uuid())
   professorId String
   professor   professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
-  diaSemana   String
+  diaSemana   DiaSemana
   horaInicio  DateTime
   horaFim     DateTime
 }
@@ -54,10 +54,9 @@ model turma {
 
 model horario {
   id         String      @id @default(uuid())
-  diaSemana  String
+  diaSemana  DiaSemana
   horaInicio DateTime
   horaFim    DateTime
-  tipo       TipoHorario
   projetoId  Int // Chave estrangeira para associar ao Projeto
   projeto    Projeto     @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
@@ -91,15 +90,28 @@ model Projeto {
   horarios  horario[]        // Relacionamentos com horários
   disciplinas disciplina[]   // Relacionamento com disciplinas
   professores professor[]
+  intervalos intervalo[]
   usuario   Usuario @relation(fields: [usuarioId], references: [id])
 }
 
+model intervalo {
+  id         String   @id @default(uuid())
+  diaSemana  DiaSemana
+  horaInicio DateTime
+  horaFim    DateTime
+  projetoId  Int
+  projeto    Projeto  @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
-
-
-
-
-enum TipoHorario {
-  AULA // Horário de aula
-  INTERVALO // Intervalo (lanche, almoço)
+  @@unique([diaSemana, horaInicio, projetoId], map: "unique_intervalo") // Evita intervalos duplicados
 }
+
+enum DiaSemana {
+  DOMINGO
+  SEGUNDA
+  TERCA
+  QUARTA
+  QUINTA
+  SEXTA
+  SABADO
+}
+
