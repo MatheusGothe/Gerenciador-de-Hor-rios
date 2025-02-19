@@ -14,76 +14,72 @@ export const getAllTurmas = async (req, res) => {
 
 export const createTurma = async (req, res) => {
   try {
-    const { nome, descricao, usuarioId } = req.body;
+    const { nome,  } = req.body;
 
-    const usuario = await prisma.usuario.findUnique({
-      where : { id : usuarioId}
-    })
+    
 
-    if(!usuario){
-      return res.status(404).json({ error: "Usuário não encontrado" });
+    const novaTurma = await prisma.turma.create({
+      data: { nome },
+    });
+    res.status(201).json(novaTurma);
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).json({ error: "Erro ao criar turma" });
+  }
+};
+
+export const getTurmaById = async (req, res) => {
+  try {
+    const {id} = req.params
+    const turma = await prisma.turma.findUnique({ where: { id } });
+    if (!turma) return res.status(404).json({ error: "Turma não encontrada" });
+    res.json(turma);
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).json({ error: "Erro ao buscar turma" });
+  }
+};
+
+export const updateTurma = async (req, res) => {
+  try {
+    const {id} = req.params
+    const { nome } = req.body;
+
+    const turma = await prisma.turma.findUnique({ where: { id: id } });
+    if (!turma) return res.status(404).json({ error: "Turma não encontrada" });
+
+    if(turma.nome === nome){
+      return res.status(401).json({message: "Nome da turma deve ser diferente"})
     }
     
-
-    const novoProjeto = await prisma.projeto.create({
-      data: { nome, descricao, usuarioId },
+    const turmaAtualizada = await prisma.turma.update({
+      where: { id },
+      data: { nome },
     });
-    res.status(201).json(novoProjeto);
-  } catch (error) {
-    console.log(error.message)
-    res.status(500).json({ error: "Erro ao criar projeto" });
-  }
-};
-/*
-export const getProjetoById = async (req, res) => {
-  try {
-    const {id} = req.params
-    const projeto = await prisma.projeto.findUnique({ where: { id: Number(id) } });
-    if (!projeto) return res.status(404).json({ error: "Projeto não encontrado" });
-    res.json(projeto);
-  } catch (error) {
-    console.log(error.message)
-    res.status(500).json({ error: "Erro ao buscar projeto" });
-  }
-};
-
-export const updateProjeto = async (req, res) => {
-  try {
-    const {id} = req.params
-    const { nome, descricao } = req.body;
-
-    const projeto = await prisma.projeto.findUnique({ where: { id: Number(id) } });
-    if (!projeto) return res.status(404).json({ error: "Projeto não encontrado" });
-    
-    const projetoAtualizado = await prisma.projeto.update({
-      where: { id: Number(id) },
-      data: { nome, descricao },
-    });
-    res.json({projetoAtualizado,message:"Projeto Atualizado"});
+    res.json({turmaAtualizada,message:"Turma Atualizada"});
   } catch (error) {
     res.status(500).json({ error: "Erro ao atualizar professor" });
   }
 };
 
-export const deleteProjeto = async (req, res) => {
+export const deleteTurma = async (req, res) => {
   try {
     const { id } = req.params;
 
     // Verifica se o professor existe antes de deletar
-    const projeto = await prisma.projeto.findUnique({ where: { id: Number(id) } });
+    const turma = await prisma.turma.findUnique({ where: { id: id } });
 
-    if (!projeto) {
-      return res.status(404).json({ error: "Projeto não encontrado" });
+    if (!turma) {
+      return res.status(404).json({ error: "Turma não encontrada" });
     }
 
     // Deleta o professor se ele existir
-    await prisma.projeto.delete({ where: { id: Number(id) } });
+    await prisma.turma.delete({ where: { id: id } });
 
-    res.json({ message: "Projeto deletado com sucesso" });
+    res.json({ message: "Turma deletada com sucesso" });
   } catch (error) {
     console.log(error.message)
-    res.status(500).json({ error: "Erro ao deletar projeto" });
+    res.status(500).json({ error: "Erro ao deletar turma" });
   }
 };
 
-*/
