@@ -33,10 +33,12 @@ model disciplina {
 model disponibilidadeprofessor {
   id          String    @id @default(uuid())
   professorId String
-  professor   professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
   diaSemana   DiaSemana
   horaInicio  DateTime
   horaFim     DateTime
+  disponivel  Boolean   @default(true) // Novo campo indicando se o professor está disponível ou não naquele dia
+
+  professor   professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
 }
 
 model sala {
@@ -87,11 +89,11 @@ model Projeto {
   nome      String
   descricao String?
   usuarioId String
-  horaInicioManha DateTime
-  horaFimManha    DateTime
-  horaInicioTarde DateTime
-  horaFimTarde    DateTime
-  
+  horaInicioManha DateTime?
+  horaFimManha    DateTime?
+  horaInicioTarde DateTime?
+  horaFimTarde    DateTime?
+
   horarios  horario[]        // Relacionamentos com horários
   disciplinas disciplina[]   // Relacionamento com disciplinas
   professores professor[]
