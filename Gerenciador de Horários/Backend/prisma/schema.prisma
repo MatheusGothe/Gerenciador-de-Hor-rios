@@ -87,6 +87,11 @@ model Projeto {
   nome      String
   descricao String?
   usuarioId String
+  horaInicioManha DateTime
+  horaFimManha    DateTime
+  horaInicioTarde DateTime
+  horaFimTarde    DateTime
+  
   horarios  horario[]        // Relacionamentos com horários
   disciplinas disciplina[]   // Relacionamento com disciplinas
   professores professor[]
@@ -104,6 +109,8 @@ model intervalo {
 
   @@unique([diaSemana, horaInicio, projetoId], map: "unique_intervalo") // Evita intervalos duplicados
 }
+
+
 
 enum DiaSemana {
   DOMINGO
