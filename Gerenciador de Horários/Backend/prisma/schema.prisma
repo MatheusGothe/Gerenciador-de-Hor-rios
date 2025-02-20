@@ -109,7 +109,7 @@ model intervalo {
   projetoId  Int
   projeto    Projeto  @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
-  @@unique([diaSemana, horaInicio, projetoId], map: "unique_intervalo") // Evita intervalos duplicados
+  @@unique([diaSemana, projetoId], map: "unique_intervalo") // Evita intervalos duplicados
 }
 
 

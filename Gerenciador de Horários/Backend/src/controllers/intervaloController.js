@@ -14,38 +14,47 @@ export const getAllIntervalos = async (req, res) => {
 
 export const createIntervalo = async (req, res) => {
   try {
-    const { nome, duracao, projetoId } = req.body;
+    const { diaSemana, horaInicio, horaFim, projetoId } = req.body;
 
-
+    // Verifica se o projeto existe
     const projetoExistente = await prisma.projeto.findFirst({
-      where: {
-        id: projetoId
-      }
-    })
+      where: { id: projetoId }
+    });
 
-    if(!projetoExistente){
+    if (!projetoExistente) {
       return res.status(400).json({ error: "Projeto não existente" });
     }
 
-    const discplinaExistente = await prisma.disciplina.findFirst({
+    // (Opcional) Verifica se há sobreposição de horários para o mesmo dia e projeto
+    const intervaloSobreposto = await prisma.intervalo.findFirst({
       where: {
-        nome: nome,
-        projetoId: projetoId
-      },
+        projetoId: projetoId,
+        diaSemana: diaSemana,
+        OR: [
+          {
+            horaInicio: { lt: horaFim }, // O início do novo intervalo é antes do fim de algum existente
+            horaFim: { gt: horaInicio }  // O fim do novo intervalo é depois do início de algum existente
+          }
+        ]
+      }
     });
-    if (discplinaExistente) {
-      return res.status(400).json({ error: "Nome da disciplina já cadastrado" });
+
+    if (intervaloSobreposto) {
+      return res.status(400).json({ error: "Horário sobreposto com outro intervalo existente" });
     }
-    
-    const novaDisciplina = await prisma.disciplina.create({
-      data: { nome, duracao,projetoId },
+
+    // Cria um novo intervalo
+    const novoIntervalo = await prisma.intervalo.create({
+      data: { diaSemana, horaInicio, horaFim, projetoId },
     });
-    res.status(201).json(novaDisciplina);
+
+    res.status(201).json(novoIntervalo);
   } catch (error) {
-    console.log(error.message)
-    res.status(500).json({ error: "Erro ao criar discplina" });
+    console.log(error.message);
+    res.status(500).json({ error: "Erro ao criar intervalo" });
   }
 };
+
 /*
 export const getDisciplinaById = async (req, res) => {
   try {
@@ -57,50 +66,63 @@ export const getDisciplinaById = async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar disciplina" });
   }
 };
-
-export const updateDisciplina = async (req, res) => {
+*/
+export const updateIntervalo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, duracao } = req.body;
+    const { diaSemana,horaInicio, horaFim, projetoId } = req.body;
 
-    const disciplina = await prisma.disciplina.findUnique({ where: { id } });
-    if (!disciplina) return res.status(404).json({ error: "Disciplina não encontrada" });
+    const intervalo = await prisma.intervalo.findUnique({ where: { id } });
+    if(!intervalo) return res.status(404).json({ error: "Intervalo não encontrado" });
+
+      // (Opcional) Verifica se há sobreposição de horários para o mesmo dia e projeto
+    const intervaloSobreposto = await prisma.intervalo.findFirst({
+        where: {
+          projetoId: projetoId,
+          diaSemana: diaSemana,
+          id: {not : id},
+          OR: [
+            {
+              horaInicio: { lt: horaFim }, // O início do novo intervalo é antes do fim de algum existente
+              horaFim: { gt: horaInicio }  // O fim do novo intervalo é depois do início de algum existente
+            }
+          ]
+        }
+      });
+  
+    if (intervaloSobreposto) {
+        return res.status(400).json({ error: "Horário sobreposto com outro intervalo existente" });
+    }
     
-    if(disciplina.nome === nome){
-      return res.status(401).json({ error: "Nome da disciplina deve ser diferente" });
-    }
-    if(disciplina.duracao === duracao){
-      return res.status(401).json({ error: "Duração da disciplina deve ser diferente" });
-    }
-    const DisciplinaAtualizada = await prisma.disciplina.update({
+    const IntervaloAtualizado = await prisma.intervalo.update({
       where: { id },
-      data: { nome, duracao },
+      data: { horaInicio, horaFim },
     });
-    res.json({DisciplinaAtualizada,message:"Disciplina Atualizada"});
+    res.json({IntervaloAtualizado,message:"Intervalo atualizado"});
   } catch (error) {
-    res.status(500).json({ error: "Erro ao atualizar disciplina" });
+    console.log(error.message)
+    res.status(500).json({ error: "Erro ao atualizar intervalo" });
   }
 };
 
-export const deleteDisciplina = async (req, res) => {
+export const deleteIntervalo = async (req, res) => {
   try {
     const { id } = req.params;
 
     // Verifica se o professor existe antes de deletar
-    const disciplina = await prisma.disciplina.findUnique({ where: { id: String(id) } });
+    const intervalo = await prisma.intervalo.findUnique({ where: { id: String(id) } });
 
-    if (!disciplina) {
-      return res.status(404).json({ error: "Disciplina não encontrada" });
+    if (!intervalo) {
+      return res.status(404).json({ error: "Intervalo não encontrado" });
     }
 
     // Deleta o professor se ele existir
-    await prisma.disciplina.delete({ where: { id: String(id) } });
+    await prisma.intervalo.delete({ where: { id: String(id) } });
 
-    res.json({ message: "Disciplina deletada" });
+    res.json({ message: "Intervalo deletado" });
   } catch (error) {
     console.log(error.message)
-    res.status(500).json({ error: "Erro ao deletar professor" });
+    res.status(500).json({ error: "Erro ao deletar intervalo" });
   }
 };
 
-*/
