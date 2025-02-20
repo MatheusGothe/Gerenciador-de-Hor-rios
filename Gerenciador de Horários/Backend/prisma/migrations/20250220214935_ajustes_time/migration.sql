@@ -1,0 +1,17 @@
+-- AlterTable
+ALTER TABLE "Projeto" ALTER COLUMN "horaFimManha" SET DATA TYPE TIME,
+ALTER COLUMN "horaFimTarde" SET DATA TYPE TIME,
+ALTER COLUMN "horaInicioManha" SET DATA TYPE TIME,
+ALTER COLUMN "horaInicioTarde" SET DATA TYPE TIME;
+
+-- AlterTable
+ALTER TABLE "disponibilidadeprofessor" ALTER COLUMN "horaInicio" SET DATA TYPE TIME,
+ALTER COLUMN "horaFim" SET DATA TYPE TIME;
+
+-- AlterTable
+ALTER TABLE "horario" ALTER COLUMN "horaInicio" SET DATA TYPE TIME,
+ALTER COLUMN "horaFim" SET DATA TYPE TIME;
+
+-- AlterTable
+ALTER TABLE "intervalo" ALTER COLUMN "horaInicio" SET DATA TYPE TIME,
+ALTER COLUMN "horaFim" SET DATA TYPE TIME;

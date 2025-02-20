@@ -1,6 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+const parseTime = (timeStr) => {
+  // Cria uma data com a data arbitrária e o horário informado
+  return new Date(`1999-01-01T${timeStr}Z`);
+};
+
 export const getAllProjetos = async (req, res) => {
   try {
     const projetos = await prisma.projeto.findMany();
@@ -13,25 +18,8 @@ export const getAllProjetos = async (req, res) => {
 
 
 export const createProjeto = async (req, res) => {
+  const { nome, descricao, usuarioId, horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde } = req.body;
   try {
-    const { nome, descricao, usuarioId, horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde } = req.body;
-
-    // Função para validar o formato "HH:MM"
-    const isValidTimeFormat = (time) => /^\d{2}:\d{2}$/.test(time);
-
-    // Verifica se os horários foram enviados corretamente
-    if (![horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde].every(isValidTimeFormat)) {
-      return res.status(400).json({ error: "Os horários devem estar no formato HH:MM (ex: 08:30)" });
-    }
-
-    // Função para transformar "HH:MM" em um objeto Date com uma data fixa
-    const fixDate = (time) => new Date(`2000-01-01T${time}:00.000Z`);
-
-    // Converte os horários para o formato correto
-    const horaInicioManhaFixed = fixDate(horaInicioManha);
-    const horaFimManhaFixed = fixDate(horaFimManha);
-    const horaInicioTardeFixed = fixDate(horaInicioTarde);
-    const horaFimTardeFixed = fixDate(horaFimTarde);
 
     // Verifica se o usuário existe
     const usuario = await prisma.usuario.findUnique({
@@ -48,10 +36,10 @@ export const createProjeto = async (req, res) => {
         nome,
         descricao,
         usuarioId,
-        horaInicioManha: horaInicioManhaFixed,
-        horaFimManha: horaFimManhaFixed,
-        horaInicioTarde: horaInicioTardeFixed,
-        horaFimTarde: horaFimTardeFixed,
+        horaInicioManha: parseTime(horaInicioManha),
+        horaFimManha : parseTime(horaFimManha),
+        horaInicioTarde: parseTime(horaInicioTarde),
+        horaFimTarde: parseTime(horaFimTarde)
       },
     });
 
@@ -77,21 +65,34 @@ export const getProjetoById = async (req, res) => {
 
 export const updateProjeto = async (req, res) => {
   try {
-    const {id} = req.params
-    const { nome, descricao } = req.body;
+    const { id } = req.params;
+    const { nome, descricao, horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde } = req.body;
 
+    // Verifica se o projeto existe
     const projeto = await prisma.projeto.findUnique({ where: { id: Number(id) } });
     if (!projeto) return res.status(404).json({ error: "Projeto não encontrado" });
-    
+
+    // Atualiza o projeto
     const projetoAtualizado = await prisma.projeto.update({
       where: { id: Number(id) },
-      data: { nome, descricao },
+      data: {
+        nome,
+        descricao,
+        horaInicioManha: parseTime(horaInicioManha),
+        horaFimManha:  parseTime(horaFimManha),
+        horaInicioTarde: parseTime(horaInicioTarde),
+        horaFimTarde:  parseTime(horaFimTarde)
+      },
     });
-    res.json({projetoAtualizado,message:"Projeto Atualizado"});
+
+    res.json({ projetoAtualizado, message: "Projeto atualizado com sucesso!" });
+
   } catch (error) {
-    res.status(500).json({ error: "Erro ao atualizar professor" });
+    console.error(error.message);
+    res.status(500).json({ error: "Erro ao atualizar projeto" });
   }
 };
+
 
 export const deleteProjeto = async (req, res) => {
   try {

@@ -34,8 +34,8 @@ model disponibilidadeprofessor {
   id          String    @id @default(uuid())
   professorId String
   diaSemana   DiaSemana
-  horaInicio  DateTime
-  horaFim     DateTime
+  horaInicio  DateTime @db.Time()
+  horaFim     DateTime @db.Time()
   disponivel  Boolean   @default(true) // Novo campo indicando se o professor está disponível ou não naquele dia
 
   professor   professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
@@ -57,8 +57,8 @@ model turma {
 model horario {
   id         String      @id @default(uuid())
   diaSemana  DiaSemana
-  horaInicio DateTime
-  horaFim    DateTime
+  horaInicio DateTime @db.Time()
+  horaFim    DateTime @db.Time()
   projetoId  Int // Chave estrangeira para associar ao Projeto
   projeto    Projeto     @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
@@ -89,10 +89,10 @@ model Projeto {
   nome      String
   descricao String?
   usuarioId String
-  horaInicioManha DateTime?
-  horaFimManha    DateTime?
-  horaInicioTarde DateTime?
-  horaFimTarde    DateTime?
+  horaInicioManha DateTime? @db.Time()
+  horaFimManha    DateTime? @db.Time()
+  horaInicioTarde DateTime? @db.Time()
+  horaFimTarde    DateTime? @db.Time()
 
   horarios  horario[]        // Relacionamentos com horários
   disciplinas disciplina[]   // Relacionamento com disciplinas
@@ -104,8 +104,8 @@ model Projeto {
 model intervalo {
   id         String   @id @default(uuid())
   diaSemana  DiaSemana
-  horaInicio DateTime   
-  horaFim    DateTime
+  horaInicio DateTime  @db.Time()
+  horaFim    DateTime  @db.Time()
   projetoId  Int
   projeto    Projeto  @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 

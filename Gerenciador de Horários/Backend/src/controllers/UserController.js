@@ -84,21 +84,17 @@ export const updateUser = async (req, res) => {
     return res.status(404).json({ error: "Usuário não encontrado" }) 
     }
 
-    if(usuario.email === email){
-      return res.status(400).json({ error: "É necessário informar outro e-mail" }) 
-    } 
-
-    if(usuario.nome === nome){
-      return res.status(400).json({ error: "É necessário informar outro nome" }) 
-    } 
-
-    const emailExists = await prisma.usuario.findUnique({
-      where: { email },
+    const emailExists = await prisma.usuario.findFirst({
+      where: {
+        email: email,
+        id: { not: id } // Isso vai garantir que o email já não existe para outro id
+      }
     });
+    
+    
     if (emailExists) {
       return res.status(400).json({ error: "E-mail já em uso por outro usuário" });
     }
-
 
    
     const usuarioAtualizado = await prisma.usuario.update({
