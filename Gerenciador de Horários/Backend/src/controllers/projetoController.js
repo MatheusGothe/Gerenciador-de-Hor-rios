@@ -14,26 +14,54 @@ export const getAllProjetos = async (req, res) => {
 
 export const createProjeto = async (req, res) => {
   try {
-    const { nome, descricao, usuarioId } = req.body;
+    const { nome, descricao, usuarioId, horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde } = req.body;
 
+    // Função para validar o formato "HH:MM"
+    const isValidTimeFormat = (time) => /^\d{2}:\d{2}$/.test(time);
+
+    // Verifica se os horários foram enviados corretamente
+    if (![horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde].every(isValidTimeFormat)) {
+      return res.status(400).json({ error: "Os horários devem estar no formato HH:MM (ex: 08:30)" });
+    }
+
+    // Função para transformar "HH:MM" em um objeto Date com uma data fixa
+    const fixDate = (time) => new Date(`2000-01-01T${time}:00.000Z`);
+
+    // Converte os horários para o formato correto
+    const horaInicioManhaFixed = fixDate(horaInicioManha);
+    const horaFimManhaFixed = fixDate(horaFimManha);
+    const horaInicioTardeFixed = fixDate(horaInicioTarde);
+    const horaFimTardeFixed = fixDate(horaFimTarde);
+
+    // Verifica se o usuário existe
     const usuario = await prisma.usuario.findUnique({
-      where : { id : usuarioId}
-    })
+      where: { id: usuarioId }
+    });
 
-    if(!usuario){
+    if (!usuario) {
       return res.status(404).json({ error: "Usuário não encontrado" });
     }
-    
 
+    // Criar novo projeto com horários corrigidos
     const novoProjeto = await prisma.projeto.create({
-      data: { nome, descricao, usuarioId },
+      data: {
+        nome,
+        descricao,
+        usuarioId,
+        horaInicioManha: horaInicioManhaFixed,
+        horaFimManha: horaFimManhaFixed,
+        horaInicioTarde: horaInicioTardeFixed,
+        horaFimTarde: horaFimTardeFixed,
+      },
     });
+
     res.status(201).json(novoProjeto);
   } catch (error) {
-    console.log(error.message)
+    console.error(error.message);
     res.status(500).json({ error: "Erro ao criar projeto" });
   }
 };
+
 
 export const getProjetoById = async (req, res) => {
   try {
