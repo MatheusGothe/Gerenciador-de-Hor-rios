@@ -16,6 +16,17 @@ export const createProfessor = async (req, res) => {
   try {
     const { nome, email, telefone, projetoId } = req.body;
 
+    //check if projectID is valid
+    const projectExists = await prisma.projeto.findFirst({
+      where: {
+        id:projetoId
+      }
+    })
+
+    if(!projectExists){
+      return res.status(401).json({ error: "Projeto não existente" });
+    }
+
     const novoProfessor = await prisma.professor.create({
       data: { nome, email, telefone, projetoId },
     });

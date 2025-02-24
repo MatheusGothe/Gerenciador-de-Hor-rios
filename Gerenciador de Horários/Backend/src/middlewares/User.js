@@ -25,4 +25,26 @@ export const validateUpdateDisciplina = async (req, res, next) => {
     }
 
   };
+
+export const checkUserLinks = async(req,res,next) => {
+    try {
+        
+        const {usuarioId} = req.params
+        const userExistsInProjeto = await prisma.projeto.findFirst({
+            where : {
+                usuarioId
+            }
+        })
+
+        if(userExistsInProjeto){
+            return res.status(400).json({ error: "O usuário está associado a um projeto" });
+        }
+
+        next()
+    } catch (error) {
+        console.log(error.message)
+        return res.status(500).json({ error: "Ocorreu um erro ao deltear o projeto" });
+
+    }
+}
   

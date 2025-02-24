@@ -13,7 +13,7 @@ model professor {
   email           String                     @unique
   telefone        String?
   projetoId Int    // Chave estrangeira para associar ao Projeto
-  projeto   Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  projeto   Projeto   @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
   disponibilidade disponibilidadeprofessor[]
   horarios        horario[]
@@ -94,11 +94,11 @@ model Projeto {
   horaInicioTarde DateTime? @db.Time()
   horaFimTarde    DateTime? @db.Time()
 
-  horarios  horario[]        // Relacionamentos com horários
-  disciplinas disciplina[]   // Relacionamento com disciplinas
-  professores professor[]
-  intervalos intervalo[]
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  horarios     horario[]     
+  disciplinas  disciplina[]  
+  professores  professor[] // Mantém relação, mas agora impedindo deleção de projeto se houver professores
+  intervalos   intervalo[]
+  usuario      Usuario @relation(fields: [usuarioId], references: [id])
 }
 
 model intervalo {

@@ -111,4 +111,27 @@ export const validateProjeto = async (req, res, next) => {
   };
   
 
-  
+  export const checkProjetoLinks = async(req,res,next) => {
+
+    try {
+        const {id} = req.params
+
+        const linkWithProfessor = await prisma.professor.findFirst({
+            where: {
+                projetoId: Number(id)
+            }
+        })
+
+        if(linkWithProfessor){
+            return res.status(401).json({ error: "O projeto possuí professores vínculados" });
+        }
+        next()
+
+        
+    } catch (error) {
+        console.log(error.message)
+        return res.status(501).json({ error: "Erro ao excluir projeto" });
+    }
+    
+
+  }
