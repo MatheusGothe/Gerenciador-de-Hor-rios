@@ -1,10 +1,7 @@
 import { PrismaClient } from "@prisma/client";
+import { parseTime } from "../functions/functions.js";
 const prisma = new PrismaClient();
 
-const parseTime = (timeStr) => {
-  // Cria uma data com a data arbitrária e o horário informado
-  return new Date(`1999-01-01T${timeStr}Z`);
-};
 
 export const getAllProjetos = async (req, res) => {
   try {
@@ -15,7 +12,6 @@ export const getAllProjetos = async (req, res) => {
     res.status(500).json({ error: "Erro ao buscar projetos" });
   }
 };
-
 
 export const createProjeto = async (req, res) => {
   const { nome, descricao, usuarioId, horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde } = req.body;

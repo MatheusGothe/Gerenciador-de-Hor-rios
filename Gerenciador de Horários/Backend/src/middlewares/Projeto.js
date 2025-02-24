@@ -1,10 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-const isValidTime = (time) => {
-    const regex = /^([0-1]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])$/;
-    return regex.test(time);
-};
 
 export const validateProjeto = async (req, res, next) => {
     const { nome, descricao, usuarioId, horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde } = req.body;
@@ -20,8 +16,7 @@ export const validateProjeto = async (req, res, next) => {
             return res.status(400).json({ error: "ID do usuário deve ser passado" });
         }
 
-              // Função para validar o formato "HH:MM:SS"
-            const isValidTimeFormat = (time) => /^\d{2}:\d{2}:\d{2}$/.test(time);
+
 
             // Array com os horários
             const horarios = [horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde];
@@ -58,7 +53,7 @@ export const validateProjeto = async (req, res, next) => {
         console.log(error.message);
         return res.status(500).json({ error: "Erro no processamento da requisição" });
     }
-};
+};  
 
   export const validateUpdateProjeto = async (req, res, next) => {
     const { nome, descricao, usuarioId, horaInicioManha, horaFimManha, horaInicioTarde, horaFimTarde } = req.body;

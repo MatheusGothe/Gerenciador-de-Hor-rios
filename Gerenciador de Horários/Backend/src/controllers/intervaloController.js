@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { parseTime } from "../functions/functions.js";
 const prisma = new PrismaClient();
 
 export const getAllIntervalos = async (req, res) => {
@@ -32,8 +33,8 @@ export const createIntervalo = async (req, res) => {
         diaSemana: diaSemana,
         OR: [
           {
-            horaInicio: { lt: horaFim }, // O início do novo intervalo é antes do fim de algum existente
-            horaFim: { gt: horaInicio }  // O fim do novo intervalo é depois do início de algum existente
+            horaInicio: { lt: parseTime(horaFim) }, // O início do novo intervalo é antes do fim de algum existente
+            horaFim: { gt: parseTime(horaInicio) }  // O fim do novo intervalo é depois do início de algum existente
           }
         ]
       }
@@ -45,7 +46,7 @@ export const createIntervalo = async (req, res) => {
 
     // Cria um novo intervalo
     const novoIntervalo = await prisma.intervalo.create({
-      data: { diaSemana, horaInicio, horaFim, projetoId },
+      data: { diaSemana, horaInicio : parseTime(horaInicio), horaFim: parseTime(horaFim), projetoId },
     });
 
     res.status(201).json(novoIntervalo);
@@ -70,7 +71,10 @@ export const getDisciplinaById = async (req, res) => {
 export const updateIntervalo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { diaSemana,horaInicio, horaFim, projetoId } = req.body;
+    let { diaSemana,horaInicio, horaFim, projetoId } = req.body;
+
+    horaFim = parseTime(horaFim)
+    horaInicio = parseTime(horaInicio)
 
     const intervalo = await prisma.intervalo.findUnique({ where: { id } });
     if(!intervalo) return res.status(404).json({ error: "Intervalo não encontrado" });
@@ -96,7 +100,7 @@ export const updateIntervalo = async (req, res) => {
     
     const IntervaloAtualizado = await prisma.intervalo.update({
       where: { id },
-      data: { horaInicio, horaFim },
+      data: { horaInicio, horaFim,diaSemana },
     });
     res.json({IntervaloAtualizado,message:"Intervalo atualizado"});
   } catch (error) {
