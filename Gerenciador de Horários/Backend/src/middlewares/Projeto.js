@@ -120,6 +120,17 @@ export const validateProjeto = async (req, res, next) => {
         if(linkWithProfessor){
             return res.status(401).json({ error: "O projeto possuí professores vínculados" });
         }
+
+        const linkWithIntervals = await prisma.intervalo.findFirst({
+            where: {
+                projetoId: Number(id)
+            }
+        })
+
+        if(linkWithIntervals){
+            return res.status(401).json({ error: "O projeto possuí intervalos vínculados" });
+        }
+
         next()
 
         

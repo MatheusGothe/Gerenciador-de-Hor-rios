@@ -96,6 +96,16 @@ export const updateIntervalo = async (req, res) => {
   
     if (intervaloSobreposto) {
         return res.status(400).json({ error: "Horário sobreposto com outro intervalo existente" });
+    } 
+
+    const projetExistente = await prisma.projeto.findFirst({
+      where: {
+        id: projetoId
+      }
+    })
+
+    if(!projetExistente){
+      return res.status(400).json({ error: "Projeto não existe" });
     }
     
     const IntervaloAtualizado = await prisma.intervalo.update({
