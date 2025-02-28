@@ -6,6 +6,7 @@ import UserRoutes from './UserRoutes.js'
 import TurmaRoutes from './TurmaRoutes.js'
 import IntervaloRoutes from './IntervaloRoutes.js'
 import DisponibilidadeProfessor from './DisponibilidadeProfessorRoutes.js'
+import ProfessorOnDisciplina from './ProfessorOnDisciplinaRoutes.js'
 
 
 const router = express()
@@ -16,7 +17,7 @@ router.use('/api/users', UserRoutes)
 router.use('/api/turmas', TurmaRoutes)
 router.use('/api/intervalos',IntervaloRoutes)
 router.use('/api/disponibilidadeProfessor',DisponibilidadeProfessor)
-
+router.use('/api/professorOnDisciplina',ProfessorOnDisciplina )
 
 
 //test route

@@ -10,55 +10,68 @@ datasource db {
 generator erd {
   provider = "prisma-erd-generator"
 }
-
-model professor {
+model Professor {
   id              String                     @id @default(uuid())
   nome            String
   email           String                     @unique
   telefone        String?
-  projetoId Int    // Chave estrangeira para associar ao Projeto
-  projeto   Projeto   @relation(fields: [projetoId], references: [id], onDelete: Restrict)
+  projetoId       Int    // Chave estrangeira para associar ao Projeto
+  projeto         Projeto   @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
-  disponibilidade disponibilidadeprofessor[]
-  horarios        horario[]
+  disciplinas     ProfessorOnDisciplina[]
+  disponibilidade DisponibilidadeProfessor[]
+  horarios        Horario[]
 }
 
-model disciplina {
-  id        String    @id @default(uuid())
-  nome      String
-  duracao   Int       // minutos
-  projetoId Int    // Chave estrangeira para associar ao Projeto
-  projeto   Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
-  horarios  horario[]
+model Disciplina {
+  id          String    @id @default(uuid())
+  nome        String
+  duracao     Int       // minutos
+  projetoId   Int       // Chave estrangeira para associar ao Projeto
+
+  projeto     Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  horarios    Horario[]
+  professores ProfessorOnDisciplina[]
 
   @@unique([nome, projetoId]) // Garante que o nome seja único dentro do mesmo projeto
 }
 
-model disponibilidadeprofessor {
+model ProfessorOnDisciplina {
+  professorId  String
+  disciplinaId String
+  projetoId    Int
+
+  professor    Professor   @relation(fields: [professorId], references: [id])
+  disciplina   Disciplina  @relation(fields: [disciplinaId], references: [id])
+
+  @@id([professorId, disciplinaId]) // Chave composta
+}
+
+model DisponibilidadeProfessor {
   id          String    @id @default(uuid())
   professorId String
   diaSemana   DiaSemana
   horaInicio  DateTime @db.Time()
   horaFim     DateTime @db.Time()
-  disponivel  Boolean   @default(true) // Novo campo indicando se o professor está disponível ou não naquele dia
+  disponivel  Boolean   @default(true) // Indica se o professor está disponível naquele dia
 
-  professor   professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
+  professor   Professor @relation(fields: [professorId], references: [id], onDelete: Restrict)
 }
 
-model sala {
+model Sala {
   id         String    @id @default(uuid())
   nome       String    @unique
   capacidade Int
-  horarios   horario[]
+  horarios   Horario[]
 }
 
-model turma {
+model Turma {
   id       String    @id @default(uuid())
   nome     String    @unique
-  horarios horario[]
+  horarios Horario[]
 }
 
-model horario {
+model Horario {
   id         String      @id @default(uuid())
   diaSemana  DiaSemana
   horaInicio DateTime @db.Time()
@@ -71,15 +84,16 @@ model horario {
   salaId       String
   professorId  String
 
-  turma      turma      @relation(fields: [turmaId], references: [id], onDelete: Restrict)
-  disciplina disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
-  sala       sala       @relation(fields: [salaId], references: [id], onDelete: Restrict)
-  professor  professor  @relation(fields: [professorId], references: [id], onDelete: Restrict)
+  turma      Turma      @relation(fields: [turmaId], references: [id], onDelete: Restrict)
+  disciplina Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
+  sala       Sala       @relation(fields: [salaId], references: [id], onDelete: Restrict)
+  professor  Professor  @relation(fields: [professorId], references: [id], onDelete: Restrict)
 
   @@unique([diaSemana, horaInicio, professorId]) // Evita conflito de professores
   @@unique([diaSemana, horaInicio, turmaId]) // Evita conflito de turma
   @@unique([diaSemana, horaInicio, salaId]) // Evita conflito de sala
 }
+
 model Usuario {
   id       String    @id @default(uuid())
   nome     String
@@ -98,14 +112,14 @@ model Projeto {
   horaInicioTarde DateTime? @db.Time()
   horaFimTarde    DateTime? @db.Time()
 
-  horarios     horario[]     
-  disciplinas  disciplina[]  
-  professores  professor[] // Mantém relação, mas agora impedindo deleção de projeto se houver professores
-  intervalos   intervalo[]
+  horarios     Horario[]     
+  disciplinas  Disciplina[]  
+  professores  Professor[] // Mantém relação, mas agora impedindo deleção de projeto se houver professores
+  intervalos   Intervalo[]
   usuario      Usuario @relation(fields: [usuarioId], references: [id])
 }
 
-model intervalo {
+model Intervalo {
   id         String   @id @default(uuid())
   diaSemana  DiaSemana
   horaInicio DateTime  @db.Time()
@@ -113,9 +127,8 @@ model intervalo {
   projetoId  Int
   projeto    Projeto  @relation(fields: [projetoId], references: [id], onDelete: Restrict)
 
-  @@unique([diaSemana, projetoId,horaInicio,horaFim], map: "unique_intervalo") // Evita intervalos duplicados
+  @@unique([diaSemana, projetoId, horaInicio, horaFim], map: "unique_intervalo") // Evita intervalos duplicados
 }
-
 
 enum DiaSemana {
   DOMINGO
@@ -126,4 +139,3 @@ enum DiaSemana {
   SEXTA
   SABADO
 }
-

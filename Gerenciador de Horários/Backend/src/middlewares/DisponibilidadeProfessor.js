@@ -1,79 +1,108 @@
 import { PrismaClient } from "@prisma/client";
+import { isValidTimeFormat } from "../functions/functions.js";
 const prisma = new PrismaClient();
 
+const diasValidos = [
+  "DOMINGO",
+  "SEGUNDA",
+  "TERCA",
+  "QUARTA",
+  "QUINTA",
+  "SEXTA",
+  "SABADO",
+];
+
 export const validateDisponibilidade = async (req, res, next) => {
-    const { professorId, diaSemana, horaInicio, horaFim, disponivel = true } = req.body;
-
+    const { diaSemana, horaInicio, horaFim, professorId } = req.body;
+  
     try {
-        // Enum de dias da semana
-        const DiasSemanaEnum = ["DOMINGO", "SEGUNDA", "TERCA", "QUARTA", "QUINTA", "SEXTA", "SABADO"];
-        
-        // Array para armazenar os erros
-        const errors = [];
-        
+      // Verifica se o dia da semana foi informado corretamente
+      
+      if (!diaSemana || !diasValidos.includes(diaSemana.toUpperCase())) {
+        return res
+          .status(400)
+          .json({ error: "Dia da semana inválido ou não informado" });
+      }
+  
+      // Verifica se o horário de início e fim foram informados
+      if (!horaInicio || !horaFim) {
+        return res
+          .status(400)
+          .json({ error: "Horário de início e fim devem ser informados" });
+      }
+      // Array com os horários
+      const horarios = [horaInicio,horaFim];
+  
+      // Verifica se algum horário está no formato errado
+      if (horarios.some((hora) => hora && !isValidTimeFormat(hora))) {
+        return res.status(400).json({
+          error: "Os horários devem estar no formato HH:MM:SS (ex: 08:30:00)",
+        });
+      }
+  
+      // Verifica se o horário de início é menor que o de fim
+      if (horaInicio >= horaFim) {
+        return res.status(400).json({
+          error: "Horário de início deve ser menor que o horário de fim",
+        });
+      }
+  
+      // Verifica se o projeto foi informado
+      if (!professorId) {
+        return res.status(400).json({ error: "ID do professor deve se informado" });
+      }
 
-        // Verificação de campos obrigatórios
-        if (!professorId) errors.push("O campo 'professorId' é obrigatório.");
-        if (!diaSemana) errors.push("O campo 'diaSemana' é obrigatório.");
-        if (!horaInicio) errors.push("O campo 'horaInicio' é obrigatório.");
-        if (!horaFim) errors.push("O campo 'horaFim' é obrigatório.");
-
-        // Validação do diaSemana baseado no enum
-        if (diaSemana && !DiasSemanaEnum.includes(diaSemana.toUpperCase())) {
-            errors.push("O campo 'diaSemana' deve ser um dos seguintes valores: " + DiasSemanaEnum.join(", "));
-        }
-
-        // Validação do formato de horaInicio e horaFim (deve ser uma string ISO 8601)
-        const isValidDate = (date) => !isNaN(Date.parse(date));
-
-        if (horaInicio && typeof horaInicio !== "string") {
-            errors.push("O campo 'horaInicio' deve ser uma string no formato ISO 8601 (ex: '2024-02-20T08:00:00Z').");
-        } else if (horaInicio && !isValidDate(horaInicio)) {
-            errors.push("O campo 'horaInicio' deve estar em um formato de data válido (ISO 8601).");
-        }
-
-        if (horaFim && typeof horaFim !== "string") {
-            errors.push("O campo 'horaFim' deve ser uma string no formato ISO 8601 (ex: '2024-02-20T10:00:00Z').");
-        } else if (horaFim && !isValidDate(horaFim)) {
-            errors.push("O campo 'horaFim' deve estar em um formato de data válido (ISO 8601).");
-        }
-
-        // Verificação se horaFim é maior que horaInicio
-        if (isValidDate(horaInicio) && isValidDate(horaFim)) {
-            const start = new Date(horaInicio);
-            const end = new Date(horaFim);
-            if (end <= start) {
-                errors.push("O campo 'horaFim' deve ser maior que 'horaInicio'.");
-            }
-        }
-
-        // Se houver erros, retorna a resposta com status 400
-        if (errors.length > 0) {
-            return res.status(400).json({ errors });
-        }
-
-        next(); // Se tudo estiver certo, continua para o próximo middleware
+  
+      next();
     } catch (error) {
-        console.error("Erro na validação:", error.message);
-        return res.status(500).json({ error: "Erro interno no servidor." });
+      console.error("Erro na validação:", error.message);
+      res.status(500).json({ error: "Erro interno do servidor" });
     }
-};
+  };
 
   
 
-  export const validateUpdateProjeto = async (req, res, next) => {
-    const { nome, descricao, } = req.body;
+  export const validateUpdateDisponibilidade = async (req, res, next) => {
 
+    const {horaInicio,horaFim,diaSemana} = req.body
     try {
-        
-    if(!nome || nome.trim() === ""){
-        return res.status(400).json({ error: "Nome do projeto deve ser informado" });
-    }
+      // Verifica se o dia da semana foi informado corretamente
+      
+      if (!diaSemana || !diasValidos.includes(diaSemana.toUpperCase())) {
+        return res
+          .status(400)
+          .json({ error: "Dia da semana inválido ou não informado" });
+      }
+  
+      // Verifica se o horário de início e fim foram informados
+      if (!horaInicio || !horaFim) {
+        return res
+          .status(400)
+          .json({ error: "Horário de início e fim devem ser informados" });
+      }
+      // Array com os horários
+      const horarios = [horaInicio,horaFim];
+  
+      // Verifica se algum horário está no formato errado
+      if (horarios.some((hora) => hora && !isValidTimeFormat(hora))) {
+        return res.status(400).json({
+          error: "Os horários devem estar no formato HH:MM:SS (ex: 08:30:00)",
+        });
+      }
+  
+      // Verifica se o horário de início é menor que o de fim
+      if (horaInicio >= horaFim) {
+        return res.status(400).json({
+          error: "Horário de início deve ser menor que o horário de fim",
+        });
+      }
 
-    next()
-    }
-    catch (error) {
-        console.log(error.message)
+
+  
+      next();
+    } catch (error) {
+      console.error("Erro na validação:", error.message);
+      res.status(500).json({ error: "Erro interno do servidor" });
     }
 
   };
