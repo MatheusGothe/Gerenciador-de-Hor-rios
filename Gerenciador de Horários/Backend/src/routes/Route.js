@@ -17,7 +17,7 @@ router.use('/api/users', UserRoutes)
 router.use('/api/turmas', TurmaRoutes)
 router.use('/api/intervalos',IntervaloRoutes)
 router.use('/api/disponibilidadeProfessor',DisponibilidadeProfessor)
-router.use('/api/professorOnDisciplina',ProfessorOnDisciplina )
+router.use('/api/professor-disciplina',ProfessorOnDisciplina )
 
 
 //test route

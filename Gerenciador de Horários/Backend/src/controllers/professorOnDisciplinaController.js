@@ -3,10 +3,11 @@ const prisma = new PrismaClient();
 
 // Cria uma associação entre um professor e uma disciplina
 export const createProfessorOnDisciplina = async (req, res) => {
+  console.log(req.body)
   const { professorId, disciplinaId, projetoId } = req.body;
   try {
     // Verifica se o professor existe
-    const professor = await prisma.professor.findUnique({
+    const professor = await prisma.professor.findFirst({
       where: { id: professorId },
     });
 
@@ -15,23 +16,30 @@ export const createProfessorOnDisciplina = async (req, res) => {
     }
 
     // Verifica se a disciplina existe
-    const disciplina = await prisma.disciplina.findUnique({
+    const disciplina = await prisma.disciplina.findFirst({
       where: { id: disciplinaId },
     });
+
+    const existAssociation = await prisma.professorOnDisciplina.findFirst({
+      where: {professorId,disciplinaId}
+    })
+
+    if (existAssociation) {
+      return res.status(400).json({ error: "Essa associação já existe" });
+    }
 
     if (!disciplina) {
       return res.status(404).json({ error: "Disciplina não encontrada" });
     }
 
     // Verifica se o projeto existe
-    const projeto = await prisma.projeto.findUnique({
+    const projeto = await prisma.projeto.findFirst({
       where: { id: projetoId },
     });
 
     if (!projeto) {
       return res.status(404).json({ error: "Projeto não encontrado" });
     }
-
     // Cria a associação entre o professor e a disciplina
     const novaAssociacao = await prisma.professorOnDisciplina.create({
       data: {
@@ -49,8 +57,13 @@ export const createProfessorOnDisciplina = async (req, res) => {
 };
 
 // Obtém todas as associações de um professor específico
-export const getProfessorOnDisciplinaByProfessor = async (req, res) => {
-  const { professorId } = req.params;
+export const getAssociationByProfessor = async (req, res) => {
+  const { id: professorId } = req.params;
+
+  if(professorId == null){
+    return res.status(400).json({ error: "Id do professor não pode ser vazio" });
+  }
+
   try {
     const associacoes = await prisma.professorOnDisciplina.findMany({
       where: { professorId },
@@ -69,8 +82,8 @@ export const getProfessorOnDisciplinaByProfessor = async (req, res) => {
 
 
 // Obtém todas as associações de uma disciplina específica
-export const getProfessorOnDisciplinaByDisciplina = async (req, res) => {
-  const { disciplinaId } = req.params;
+export const getAssociationByDiscipline = async (req, res) => {
+  const { id: disciplinaId } = req.params;
   try {
     const associacoes = await prisma.professorOnDisciplina.findMany({
       where: { disciplinaId },
